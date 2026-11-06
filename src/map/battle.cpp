@@ -3256,11 +3256,6 @@ static bool is_attack_hitting(struct Damage* wd, block_list *src, block_list *ta
 		return false;
 
 	flee = tstatus->flee;
-#ifdef RENEWAL
-	hitrate = 0; //Default hitrate
-#else
-	hitrate = 80; //Default hitrate
-#endif
 
 	if(battle_config.agi_penalty_type && battle_config.agi_penalty_target&target->type) {
 		unsigned char attacker_count = unit_counttargeted(target); //256 max targets should be a sane max
@@ -3275,7 +3270,16 @@ static bool is_attack_hitting(struct Damage* wd, block_list *src, block_list *ta
 		}
 	}
 
+#ifdef RENEWAL
+	hitrate = 0; //Default hitrate
 	hitrate += sstatus->hit - flee;
+#else
+	// Aethera: ratio-based hit chance instead of the vanilla flat +80 and
+	// raw HIT-FLEE difference, which saturates past roughly a 120 point
+	// gap. chance = hit_ratio_base * (HIT/FLEE)^hit_ratio_exponent.
+	// Tunable via hit_ratio_* in battle_athena.conf.
+	hitrate = (int16)(battle_config.hit_ratio_base * pow((double)sstatus->hit / (double)i16max(flee, 1), battle_config.hit_ratio_exponent / 1000.0));
+#endif
 
 	//Fogwall's hit penalty is only for normal ranged attacks.
 	if ((wd->flag&(BF_LONG|BF_MAGIC)) == BF_LONG && !skill_id && tsc && tsc->getSCE(SC_FOGWALL))
@@ -3309,7 +3313,11 @@ static bool is_attack_hitting(struct Damage* wd, block_list *src, block_list *ta
 			hitrate += 3 * skill;
 	}
 
+#ifdef RENEWAL
 	hitrate = cap_value(hitrate, battle_config.min_hitrate, battle_config.max_hitrate);
+#else
+	hitrate = cap_value(hitrate, battle_config.hit_ratio_min, battle_config.hit_ratio_max);
+#endif
 
 	if(skill_id == PA_SHIELDCHAIN)
 		hitrate += 20; //Rapid Smiting gives a flat +20 hit after the hitrate was capped
@@ -8420,6 +8428,10 @@ static const struct _battle_data {
 	{ "auto_counter_type",                  &battle_config.auto_counter_type,               BL_ALL, BL_NUL, BL_ALL,         },
 	{ "min_hitrate",                        &battle_config.min_hitrate,                     5,      0,      100,            },
 	{ "max_hitrate",                        &battle_config.max_hitrate,                     100,    0,      100,            },
+	{ "hit_ratio_base",                     &battle_config.hit_ratio_base,                  80,     1,      100,            },
+	{ "hit_ratio_exponent",                 &battle_config.hit_ratio_exponent,              1500,   1,      10000,          },
+	{ "hit_ratio_min",                      &battle_config.hit_ratio_min,                   5,      0,      100,            },
+	{ "hit_ratio_max",                      &battle_config.hit_ratio_max,                   95,     0,      100,            },
 	{ "agi_penalty_target",                 &battle_config.agi_penalty_target,              BL_PC,  BL_NUL, BL_ALL,         },
 	{ "agi_penalty_type",                   &battle_config.agi_penalty_type,                1,      0,      2,              },
 	{ "agi_penalty_count",                  &battle_config.agi_penalty_count,               3,      2,      INT_MAX,        },

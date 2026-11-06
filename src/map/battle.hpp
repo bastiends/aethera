@@ -305,6 +305,10 @@ struct Battle_Config
 	int32 auto_counter_type;
 	int32 min_hitrate;	//[Skotlex]
 	int32 max_hitrate;	//[Skotlex]
+	int32 hit_ratio_base;		// Aethera: ratio-based hit chance, base multiplier (%)
+	int32 hit_ratio_exponent;	// Aethera: ratio-based hit chance, exponent x1000 (1500 = 1.5)
+	int32 hit_ratio_min;		// Aethera: ratio-based hit chance, floor (%)
+	int32 hit_ratio_max;		// Aethera: ratio-based hit chance, ceiling (%)
 	int32 agi_penalty_target;
 	int32 agi_penalty_type;
 	int32 agi_penalty_count;
