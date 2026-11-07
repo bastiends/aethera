@@ -2702,12 +2702,16 @@ void status_calc_misc(block_list *bl, struct status_data *status, int32 level)
 	status->matk_min = status_base_matk_min(status);
 	status->matk_max = status_base_matk_max(status);
 	// Hit
+	// Aethera: effective level (level/10) instead of raw level, for both
+	// players and monsters, so DEX stays meaningful up to level 999
+	// instead of being swamped by raw level. Monster Level is scaled x10
+	// in db/import/mob_db.yml to land back on its original value here.
 	stat = status->hit;
-	stat += level + status->dex;
+	stat += level / 10 + status->dex;
 	status->hit = cap_value(stat, 1, SHRT_MAX);
 	// Flee
 	stat = status->flee;
-	stat += level + status->agi;
+	stat += level / 10 + status->agi;
 	status->flee = cap_value(stat, 1, SHRT_MAX);
 	// Def2
 	stat = status->def2;
