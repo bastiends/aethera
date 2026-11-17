@@ -9,3 +9,12 @@ item_rate_mvp: 1000
 castrate_dex_scale: 150
 max_aspd: 193
 max_lv: 999
+max_parameter: 250
+max_baby_parameter: 250
+max_trans_parameter: 250
+max_third_parameter: 250
+max_baby_third_parameter: 250
+max_third_trans_parameter: 250
+max_extended_parameter: 250
+max_summoner_parameter: 250
+max_fourth_parameter: 250
