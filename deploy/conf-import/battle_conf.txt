@@ -8,3 +8,4 @@ item_rate_card: 100
 item_rate_mvp: 1000
 castrate_dex_scale: 150
 max_aspd: 193
+max_lv: 999
